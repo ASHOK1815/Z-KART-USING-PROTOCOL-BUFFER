@@ -1,28 +1,21 @@
 package com.zcart;
 
+import filehandler.FileHandler;
+import filehandler.PasswordVerifier;
 
-import customer.Customer;
-import filehandler.Filehandler;
-import filehandler.PassswordVerifier;
-import product.Shopping;
-
-import java.io.File;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
 
+
     public static void main(String[] args) {
 
         Scanner scan = new Scanner(System.in);
-        File file = new File("./File_db/zusers_db");
-        File recentPassword = new File("./File_db/z-Password_db.txt");
-
-        String usersFilePath = "./File_db/zusers_db";
-        String recentPasswordFilePath = "./File_db/z-Password_db";
-
         char choice;
-        System.out.println("----------------------------------------------------------------");
+        String usersFilePath = "./file_db/customer";
+        String recentPasswordFilePath = "./file_db/password";
+        System.out.println("-----------------------");
         do {
             //  MAIN PAGE MENU
             System.out.println("WELCOME TO Z-KART");
@@ -42,7 +35,8 @@ public class Main {
                     long mobileNumber = 0;
                     System.out.println("Enter Your Mail id");
                     email = scan.next();
-                    email=email.toLowerCase();
+                    email = email.toLowerCase();
+                    FileHandler fileioworker = new FileHandler();
 
                     if (fileioworker.emailVerifier(email)) {
                         System.out.println("Email id already exist!. Try to login");
@@ -64,8 +58,6 @@ public class Main {
                         break;
                     }
 
-
-
                     System.out.println("Password complexity of mandating at least 2 lower case, 2 upper case and 2 numbers with a minimum length of 6");
 
                     System.out.println("Enter Your Password");
@@ -74,6 +66,7 @@ public class Main {
                     System.out.println("Enter Password again");
                     secondPassword = scan.next();
 
+                    PasswordVerifier passswordVerifier=new PasswordVerifier();
                     if(!passswordVerifier.passwordValidChecker(firstPassword,secondPassword))
                     {
                         System.out.println("Password condition not match Try again!");
@@ -99,10 +92,7 @@ public class Main {
                     System.out.println(customer.getName() + " added successfully");
                     break;
 
-
-
                 case '2':
-                   // CASE 2 LOGIN
                     String loginEmail;
                     String loginPassword;
 
@@ -111,10 +101,12 @@ public class Main {
                     loginEmail=loginEmail.toLowerCase();
                     System.out.println("Enter password");
                     loginPassword = scan.next();
-                    loginPassword = passswordVerifier.encryptPassword(loginPassword);
+                    PasswordVerifier passwordVerifier=new PasswordVerifier();
+                    loginPassword = passwordVerifier.encryptPassword(loginPassword);
+                    FileHandler fileHandler=new FileHandler();
+                    Admin admin=new Admin();
 
-
-                    if(fileioworker.adminChecker(loginEmail,loginPassword))
+                    if(fileHandler.adminChecker(loginEmail,loginPassword))
                     {
 
                         if( loginPassword.equals("yzaaz"))
@@ -133,12 +125,13 @@ public class Main {
                         else
                         {
 
+
                             admin.displayCurrentStockDetails();
-                            int adminPersmission = 0;
 
-                            do{
+                           int adminPersmission = 0;
+
+                           do{
                                 System.out.println("Want to Update stock and add product::--PRESS: 1   PRESS:2-QUIT");
-
 
                                 try {
                                     adminPersmission=scan.nextInt();
@@ -153,45 +146,34 @@ public class Main {
 
                                 if(adminPersmission==1)
                                 {
-                                       admin.adminUpdateStock();
+                                    admin.adminUpdateStock();
                                 }
                                 else
                                 {
-                                        System.out.println("Thanks for checking out Stock ");
-                                        System.out.println("-----------Z-KART-------------");
+                                    System.out.println("Thanks for checking out Stock ");
+                                    System.out.println("-----------Z-KART-------------");
                                 }
                             }while(adminPersmission!=2);
 
                         }
 
                     }
-                    else if(fileioworker.emailAndPasswordVerifier(loginEmail,loginPassword))
-                    {
 
-                           shop.shoppingDetials(loginEmail);
-
-
-                    }
-                    else
-                    {
-                        System.out.println("Either Email not registed or Password is incorrect please try again");
-                    }
-
-                    break;
-
-
-                case '3':
-                    // CASE 3 FOR PASSWORD CHANGE
-                    passswordVerifier.passwordUpdate();
-                    break;
 
             }
-        }while(choice!='Q' && choice!='q');
 
-        System.out.println("Logout Successfully!");
+
+            }while(choice!='q');
+
+
+
+
+
+
+
+
+
 
 
     }
-
-
 }

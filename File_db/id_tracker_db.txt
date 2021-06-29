@@ -1,3 +1,0 @@
-product 4
-order 3
-coupon 2
