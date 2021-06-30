@@ -5,6 +5,7 @@ import filehandler.PasswordVerifier;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import product.Shopping;
 
 public class Main {
 
@@ -157,13 +158,35 @@ public class Main {
 
                         }
 
+
                     }
+                    else if(fileHandler.emailAndPasswordVerifier(loginEmail,loginPassword))
+                    {
+                        Shopping shop=new Shopping();
+                        shop.shoppingDetials(loginEmail);
+
+
+                    }
+                    else
+                    {
+                        System.out.println("Either Email not registed or Password is incorrect please try again");
+                    }
+
+                    break;
+
+                case '3':
+                    // CASE 3 FOR PASSWORD CHANGE
+                    PasswordVerifier passwordVerifier1=new PasswordVerifier();
+                    passwordVerifier1.passwordUpdate();
+                    break;
 
 
             }
 
 
-            }while(choice!='q');
+        }while(choice!='Q' && choice!='q');
+
+        System.out.println("Logout Successfully!");
 
 
 

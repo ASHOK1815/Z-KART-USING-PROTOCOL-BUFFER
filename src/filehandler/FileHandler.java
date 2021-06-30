@@ -1,8 +1,6 @@
 package filehandler;
 
-import proto.example.Schema.Customer;
-import proto.example.Schema.Customers;
-import proto.example.Schema.Products;
+import proto.example.Schema.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -20,6 +18,24 @@ public class FileHandler {
 
             FileOutputStream outputFile = new FileOutputStream(filePath);
             customers.build().writeTo(outputFile);
+        } catch (IOException e)
+        {
+            System.out.println("Problem in adding data from file !");
+        }
+    }
+
+
+
+    public void addCart(proto.example.Schema.CartItem.Builder cart, String filePath) {
+
+        try{
+            FileInputStream inputFile = new FileInputStream(filePath);
+            Cart.Builder carts= Cart.newBuilder();
+            carts.mergeFrom(inputFile);
+            carts.addCartItems(cart);
+
+            FileOutputStream outputFile = new FileOutputStream(filePath);
+            carts.build().writeTo(outputFile);
         } catch (IOException e)
         {
             System.out.println("Problem in adding data from file !");
@@ -100,6 +116,26 @@ public class FileHandler {
     }
 
 
+    public Customers.Builder readOldPassword()
+    {
+        String usersFilePath = "./file_db/password";
+        Customers.Builder customers = Customers.newBuilder();
+        try{
+            FileInputStream inputFile = new FileInputStream(usersFilePath);
+
+            customers.mergeFrom(inputFile);
+            return  customers;
+
+        } catch (IOException e)
+        {
+            System.out.println("Problem in reading data from file !");
+        }
+
+
+        return customers;
+    }
+
+
 
     public Products.Builder readFileDataProduct()
     {
@@ -118,6 +154,104 @@ public class FileHandler {
 
 
         return products;
+    }
+
+
+    public Cart.Builder readCartItems()
+    {
+        String usersFilePath = "./file_db/cart";
+        Cart.Builder cart = Cart.newBuilder();
+        try{
+            FileInputStream inputFile = new FileInputStream(usersFilePath);
+
+            cart.mergeFrom(inputFile);
+            return  cart;
+
+        } catch (IOException e)
+        {
+            System.out.println("Problem in reading data from file !");
+        }
+
+
+        return cart;
+    }
+
+
+    public IdTrackers.Builder readLastId()
+    {
+        String usersFilePath = "./file_db/idtracker";
+
+        IdTrackers.Builder id=IdTrackers.newBuilder();
+        try{
+            FileInputStream inputFile = new FileInputStream(usersFilePath);
+
+            id.mergeFrom(inputFile);
+            return  id;
+
+        } catch (IOException e)
+        {
+            System.out.println("Problem in reading data from file !");
+        }
+
+
+        return id;
+    }
+    public Orders.Builder readHistoryProductUser()
+    {
+        String usersFilePath = "./file_db/order";
+
+        Orders.Builder order=Orders.newBuilder();
+        try{
+            FileInputStream inputFile = new FileInputStream(usersFilePath);
+
+            order.mergeFrom(inputFile);
+            return  order;
+
+        } catch (IOException e)
+        {
+            System.out.println("Problem in reading data from file !");
+        }
+
+
+        return order;
+
+    }
+
+    public boolean emailAndPasswordVerifier(String email,String password) { // Email and password verifier
+
+        try {
+            FileInputStream inputFile = new FileInputStream("./file_db/customer");
+            Customers.Builder customers = Customers.newBuilder();
+            customers.mergeFrom(inputFile);
+
+            int size = customers.getCustomersCount();
+            for(int i=0; i<size; i++){
+                proto.example.Schema.Customer customer = customers.getCustomers(i);
+                if( email.equals(customer.getEmail()) && password.equals(customer.getPassword()) ){
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Problem in reading data from file !");
+        }
+
+        return false;
+
+    }
+
+
+    public void fileDataVanisher(File file)  // REMOVING DATA FROM THE FILE
+    {
+        FileWriter fwOb = null;
+        try {
+            PrintWriter writer = new PrintWriter(file);
+            writer.print("");
+            writer.close();
+
+        } catch (IOException e) {
+            System.out.println("Problem in removing data from file !");
+        }
+
     }
 
 

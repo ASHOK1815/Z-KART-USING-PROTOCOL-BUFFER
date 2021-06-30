@@ -94,7 +94,7 @@ public class Admin {
                 customer.setPassword(firstPassword);
                 customers.setCustomers(i,customer);
 
-                System.out.println(customers.getCustomers(i).toString());
+   //             System.out.println(customers.getCustomers(i).toString());
                 String passwordFilePath = "./file_db/password";
                 filehandler.addUser(customer,passwordFilePath);
                 String userFilePath = "./file_db/customer";

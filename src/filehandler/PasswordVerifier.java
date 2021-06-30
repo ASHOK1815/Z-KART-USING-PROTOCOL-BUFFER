@@ -1,6 +1,9 @@
 package filehandler;
 
 
+import proto.example.Schema.Customer;
+import proto.example.Schema.Customers;
+
 import java.io.*;
 import java.util.*;
 
@@ -111,6 +114,183 @@ public class PasswordVerifier {
         return true;
 
     }
+
+
+    public void passwordChanger(String password,String email)  // password Changer
+    {
+        Customers.Builder customers=filehandler.readFileDataCustomer();
+
+
+        int size=customers.getCustomersCount();
+        boolean flag=false;
+        for(int i=0;i<size;i++)
+        {
+            if(customers.getCustomers(i).getEmail().equalsIgnoreCase(email))
+            {
+
+                Customer.Builder customer=Customer.newBuilder();
+                customer.mergeFrom(customers.getCustomers(i));
+                customer.setPassword(password);
+                customers.setCustomers(i,customer);
+                String userFilePath = "./file_db/customer";
+
+                try {
+                    FileOutputStream outputFile= new FileOutputStream(userFilePath);
+                    customers.build().writeTo(outputFile);
+                    flag=true;
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    System.out.println("Password is not updated");
+                }
+
+                break;
+
+            }
+        }
+
+
+        if(flag)
+        {
+            System.out.println("Password change Successfully!");
+        }
+        else
+        {
+            System.out.println("Error in updating password");
+        }
+
+        return;
+
+    }
+
+
+
+    public void  passwordUpdate()   // updating the password
+    {
+        String email;
+        String firstPassword;
+        String secondPassword;
+        String oldPassword;
+
+        System.out.println("Enter Your Mail id");
+        email = scan.next();
+        email =email.toLowerCase();
+        System.out.println("Enter Your old Password");
+        oldPassword = scan.next();
+        oldPassword =encryptPassword(oldPassword);
+
+        if (filehandler.emailAndPasswordVerifier(email,oldPassword)) {
+
+            System.out.println("Old password match successfully");
+
+        }
+        else
+        {
+            System.out.println("Either email or password is incorrect please try again");
+            return;
+        }
+
+
+        System.out.println("Password complexity of mandating at least 2 lower case, 2 upper case and 2 numbers with a minimum length of 6");
+
+        System.out.println("Enter Your Password");
+        firstPassword = scan.next();
+
+
+        System.out.println("Enter Password again");
+        secondPassword = scan.next();
+
+
+        if(!passwordValidChecker(firstPassword,secondPassword))
+        {
+            System.out.println("Password condition not match Try again!");
+            return;
+        }
+
+
+
+        firstPassword=encryptPassword(firstPassword);
+
+        Customers.Builder customersPassword=filehandler.readOldPassword();
+
+        int size=customersPassword.getCustomersCount();
+        int counter=0;
+        String name = null;
+        long mobileNumber = 0;
+
+        for(int i=0;i<size;i++)
+        {
+            if(customersPassword.getCustomers(i).getEmail().equalsIgnoreCase(email))
+            {
+                name=customersPassword.getCustomers(i).getName();
+                mobileNumber=customersPassword.getCustomers(i).getMobileNumber();
+                int sizeobj=customersPassword.getCustomers(i).getPassword().length();
+                if( (firstPassword.equals(customersPassword.getCustomers(i).getPassword()) ) && (sizeobj==firstPassword.length())) {
+
+                    System.out.println("Password match with the old password!  Try new password again!");
+                    return;
+                }
+                else
+                {
+                    counter++;
+                }
+
+
+            }
+
+        }
+
+   //     ArrayList<Customer>temperory=new ArrayList<Customer>();
+        String usersFilePath = "./file_db/password";
+        if(counter<3)
+        {
+            proto.example.Schema.Customer.Builder customer = proto.example.Schema.Customer.newBuilder();
+            customer.setEmail(email);
+            customer.setPassword(firstPassword);
+            customer.setName(name);
+            customer.setMobileNumber(mobileNumber);
+            customer.setIsInitialCouponGenerated(0);
+
+            filehandler.addUser(customer,usersFilePath);
+        }
+        else
+        {
+            boolean flag=true;
+            for(int i=0;i<size;i++)
+            {
+                if(customersPassword.getCustomers(i).getEmail().equals(email) && flag)
+                {
+                    flag=false;
+                    filehandler.fileDataVanisher(new File(usersFilePath));
+                    continue;
+
+                }
+                else
+                {
+                    filehandler.addUser(customersPassword.getCustomers(i).toBuilder(),usersFilePath);
+
+                }
+
+            }
+
+            if(flag==false)
+            {
+                proto.example.Schema.Customer.Builder customer = proto.example.Schema.Customer.newBuilder();
+                customer.setEmail(email);
+                customer.setPassword(firstPassword);
+                customer.setName(name);
+                customer.setMobileNumber(mobileNumber);
+                customer.setIsInitialCouponGenerated(0);
+
+                filehandler.addUser(customer,usersFilePath);
+            }
+
+        }
+
+        passwordChanger(firstPassword,email);
+
+    }
+
 
 
 
