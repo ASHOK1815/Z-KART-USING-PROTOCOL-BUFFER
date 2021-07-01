@@ -1,5 +1,6 @@
 package product;
 
+import Inventory.Invoice;
 import filehandler.FileHandler;
 import proto.example.Schema.*;
 
@@ -13,6 +14,7 @@ import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.Set;
+
 
 public class Shopping {
 
@@ -257,9 +259,12 @@ public class Shopping {
 
 
 
+
+
+
+
+
     }
-
-
 
 
     public void shoppingDetials(String email)
@@ -345,19 +350,8 @@ public class Shopping {
 
                 case '2':
 
-//                    Orders.Builder listHistoryCart=fileHandler.readHistoryProductUser();
-//                    int size= listHistoryCart.getOrdersCount();
-//
-//                    for(int i=0;i<size;i++)
-//                    {
-//                        if(listHistoryCart.getOrders(i).getEmail().equals(email))
-//                        {
-//                            showCart.add(listHistoryCart.get(i));
-//                        }
-//                    }
-//
-//                    Invoice invoiceObject=new Invoice(showCart,email,timeObj.toString(),dateObj.toString(),"0");
-//                    break;
+                    Invoice invoiceObject=new Invoice(email,timeObj.toString(),dateObj.toString(),"0");
+                    break;
 
                 case '3':
 
@@ -365,20 +359,9 @@ public class Shopping {
                     break;
 
                 case '4':
-//                    ArrayList<Cart> listCart =filehandler.readCurrentProductUser();
-//                    ArrayList<Cart> showCartProduct=new ArrayList<Cart>();
-//
-//                    for(int i=0;i<listCart.size();i++)
-//                    {
-//                        if(listCart.get(i).email.equals(email))
-//                        {
-//                            showCartProduct.add(listCart.get(i));
-//                        }
-//                    }
-//
-//
-//                    Invoice invoiceObj=new Invoice(showCartProduct,email,timeObj.toString(),dateObj.toString(),0.0);
-//                    break;
+
+                  Invoice invoiceObj=new Invoice(email,timeObj.toString(),dateObj.toString(),0.0);
+                  break;
 
                 case '5':
 //                    ArrayList<Cart> productsInCart =filehandler.readCurrentProductUser();

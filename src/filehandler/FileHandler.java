@@ -25,6 +25,23 @@ public class FileHandler {
     }
 
 
+    public void addProduct(proto.example.Schema.Product.Builder Product, String filePath) {
+
+        try{
+            FileInputStream inputFile = new FileInputStream(filePath);
+            Products.Builder products=Products.newBuilder();
+            products.mergeFrom(inputFile);
+            products.addProducts(Product);
+
+            FileOutputStream outputFile = new FileOutputStream(filePath);
+            products.build().writeTo(outputFile);
+        } catch (IOException e)
+        {
+            System.out.println("Problem in adding data from file !");
+        }
+    }
+
+
 
     public void addCart(proto.example.Schema.CartItem.Builder cart, String filePath) {
 
@@ -216,6 +233,31 @@ public class FileHandler {
         return order;
 
     }
+
+
+
+    public OrderProducts.Builder readOrderProducts()
+    {
+        String usersFilePath = "./file_db/order_product";
+
+        OrderProducts.Builder order=OrderProducts.newBuilder();
+        try{
+            FileInputStream inputFile = new FileInputStream(usersFilePath);
+
+            order.mergeFrom(inputFile);
+            return  order;
+
+        } catch (IOException e)
+        {
+            System.out.println("Problem in reading data from file !");
+        }
+
+
+        return order;
+
+    }
+
+
 
     public boolean emailAndPasswordVerifier(String email,String password) { // Email and password verifier
 

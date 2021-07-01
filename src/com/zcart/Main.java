@@ -6,6 +6,8 @@ import filehandler.PasswordVerifier;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import product.Shopping;
+import proto.example.Schema.Product;
+import proto.example.Schema.Products;
 
 public class Main {
 
@@ -13,6 +15,7 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner scan = new Scanner(System.in);
+
         char choice;
         String usersFilePath = "./file_db/customer";
         String recentPasswordFilePath = "./file_db/password";
@@ -187,11 +190,6 @@ public class Main {
         }while(choice!='Q' && choice!='q');
 
         System.out.println("Logout Successfully!");
-
-
-
-
-
 
 
 
