@@ -106,7 +106,7 @@ public class Shopping {
 
 
         String userFilePath = "./file_db/cart";
-        CartItem.Builder cart=proto.example.Schema.CartItem.newBuilder();
+        CartItem.Builder cart=CartItem.newBuilder();
 
         if(flag)
         {
@@ -116,15 +116,6 @@ public class Shopping {
             cart.setPrice(price);
             cart.setTime(timeObj.toString());
             cart.setDate(dateObj.toString());
-
-            try {
-                FileOutputStream outputFile= new FileOutputStream(userFilePath);
-                products.build().writeTo(outputFile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
         else
         {
@@ -134,16 +125,8 @@ public class Shopping {
             cart.setTime(timeObj.toString());
             cart.setDate(dateObj.toString());
 
-            try {
-                FileOutputStream outputFile= new FileOutputStream(userFilePath);
-                products.build().writeTo(outputFile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
-
+        fileHandler.addCart(cart, userFilePath);
         System.out.println("Product added successfully to Cart");
 
         return;
@@ -168,14 +151,14 @@ public class Shopping {
                 id.mergeFrom(idTracker.getIdTrackers(i));
                 id.setLastId(newOrderId);
                 idTracker.setIdTrackers(i,id);
-                try {
-                    FileOutputStream outputFile= new FileOutputStream(cartFilePath);
-                    idTracker.build().writeTo(outputFile);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    FileOutputStream outputFile= new FileOutputStream(cartFilePath);
+//                    idTracker.build().writeTo(outputFile);
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
                 break;
             }
         }
@@ -219,16 +202,16 @@ public class Shopping {
                         product.setStock(productList.getProducts(i).getStock()-1);
                         productList.setProducts(i,product);
 
-                        String productFile = "./file_db/product";
+//                        String productFile = "./file_db/product";
 
-                        try {
-                            FileOutputStream outputFile= new FileOutputStream(productFile);
-                            productList.build().writeTo(outputFile);
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+//                        try {
+//                            FileOutputStream outputFile= new FileOutputStream(productFile);
+//                            productList.build().writeTo(outputFile);
+//                        } catch (FileNotFoundException e) {
+//                            e.printStackTrace();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
 
                     }else{
                         cartIteamsOutOfStock.add(j);
@@ -244,24 +227,37 @@ public class Shopping {
             System.out.println(String.format("------!!CHECKOUT ABORT!!--------"));
             System.out.println(outOfStockMsg);
             System.out.println(String.format("------THESE OUT OF STOCK PRODUCTS WILL BE REMOVED FROM YOUR CART--------"));
-            FileHandler fileHandler =new FileHandler();
-            fileHandler.fileDataVanisher(new File(cartFilePath));
+
 
             for(int i=0;i<cart.getCartItemsCount();i++){
-                if(!cartIteamsOutOfStock.contains(i)){
-                    fileHandler.addCart(cart.getCartItems(i).toBuilder(),cartFilePath);
+                if(cartIteamsOutOfStock.contains(i)){
+                    cart.removeCartItems(i);
                 }
             }
+
+            try {
+                FileOutputStream cartOuputStream = new FileOutputStream(cartFilePath);
+                cart.build().writeTo(cartOuputStream);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             return;
         }
 
         String productsFile= "./file_db/product";
-        fileHandler.fileDataVanisher(new File(productsFile));
-
-        for(int j=0;j< productList.getProductsCount();j++)
-        {
-            fileHandler.addProduct(productList.getProducts(j).toBuilder(),productsFile);
+        FileOutputStream productOutputStream = null;
+        try {
+            productOutputStream = new FileOutputStream(productsFile);
+            productList.build().writeTo(productOutputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
 
         Double totalAmount= Double.valueOf(0);
         for(int i=0;i< cart.getCartItemsCount();i++)
@@ -305,6 +301,10 @@ public class Shopping {
         for(int i=0;i<idTracker.getIdTrackersCount();i++){
             if(idTracker.getIdTrackers(i).getName().equals("coupon")){
                 newCouponId=idTracker.getIdTrackers(i).getLastId()+1;
+                IdTracker.Builder id=IdTracker.newBuilder();
+                id.mergeFrom(idTracker.getIdTrackers(i));
+                id.setLastId(newCouponId);
+                idTracker.setIdTrackers(i,id);
             }
         }
 
@@ -327,21 +327,26 @@ public class Shopping {
 
             fileHandler.addCoupon(newUserCoupen,couponsFile);
             isCouponGenerated=1;
-            fileHandler.fileDataVanisher(new File("./file_db/customer"));
+//            fileHandler.fileDataVanisher(new File("./file_db/customer"));
             for(int i=0;i<allCustomer.getCustomersCount();i++){
-                if(allCustomer.getCustomers(i).getEmail().equals(email)){
-
-                    Customer.Builder dummyCustomer=Customer.newBuilder();
+                if(allCustomer.getCustomers(i).getEmail().equals(email)) {
+                    Customer.Builder dummyCustomer = Customer.newBuilder();
                     dummyCustomer.setName(allCustomer.getCustomers(i).getName());
                     dummyCustomer.setPassword(allCustomer.getCustomers(i).getPassword());
                     dummyCustomer.setEmail(allCustomer.getCustomers(i).getEmail());
                     dummyCustomer.setMobileNumber(allCustomer.getCustomers(i).getMobileNumber());
                     dummyCustomer.setIsInitialCouponGenerated(1);
-                    allCustomer.setCustomers(i,dummyCustomer);
-
+                    allCustomer.setCustomers(i, dummyCustomer);
                 }
-
-                fileHandler.addUser(allCustomer.getCustomers(i).toBuilder(), "./file_db/customer");
+            }
+            FileOutputStream customersOutputStream = null;
+            try {
+                customersOutputStream = new FileOutputStream("./file_db/customer");
+                allCustomer.build().writeTo(customersOutputStream);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }else if(totalAmount>=20000){
             int couponCode = (int)Math.floor(Math.random()*(999999-100000+1)+100000);
@@ -358,13 +363,13 @@ public class Shopping {
         }
 
         if(isCouponGenerated==1){
-            for(int i=0;i<idTracker.getIdTrackersCount();i++){
-                if(idTracker.getIdTrackers(i).getName().equals("coupon")){
-                    IdTracker.Builder changeId=IdTracker.newBuilder();
-                    changeId.setName(idTracker.getIdTrackers(i).getName());
-                    changeId.setLastId(newCouponId);
-                    idTracker.setIdTrackers(i,changeId);
-                }
+            try {
+                FileOutputStream idTrackerOutputStream = new FileOutputStream("./file_db/idtracker");
+                idTracker.build().writeTo(idTrackerOutputStream);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
@@ -405,13 +410,19 @@ public class Shopping {
                 }
             }
 
-            Coupons.Builder allCoupons=Coupons.newBuilder();
-            allCoupons= fileHandler.readCoupen();
-            fileHandler.fileDataVanisher(new File("/file_db/coupen"));
+            Coupons.Builder allCoupons= fileHandler.readCoupen();
             for(int i=0;i<allCoupons.getCouponsCount();i++){
-                if(!(allCoupons.getCoupons(i).getEmail().equals(email) && deleteCoupons.contains(allCoupons.getCoupons(i).getId()) ) ){
-                    fileHandler.addCoupon(allCoupons.getCoupons(i).toBuilder(),"/file_db/coupen");
+                if((allCoupons.getCoupons(i).getEmail().equals(email) && deleteCoupons.contains(allCoupons.getCoupons(i).getId()) ) ){
+                    allCoupons.removeCoupons(i);
                 }
+            }
+            try {
+                FileOutputStream coupenOutputStream = new FileOutputStream("./file_db/coupen");
+                allCoupons.build().writeTo(coupenOutputStream);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
@@ -425,12 +436,8 @@ public class Shopping {
         order.setTime(LocalTime.now().toString());
 
         fileHandler.addOrder(order, "./file_db/order");
-        fileHandler.fileDataVanisher(new File("./file_db/idtracker"));
-        for(int i=0;i<idTracker.getIdTrackersCount();i++){
-            fileHandler.addLastId(idTracker.getIdTrackers(i).toBuilder(), "./file_db/idtracker");
-        }
 
-        Invoice invoice=new Invoice(cart,email,timeObj.toString(),dateObj.toString());
+        Invoice invoice=new Invoice(cart, email,timeObj.toString(),dateObj.toString());
 
         System.out.println("TOTAL PAY AMOUNT:--"+totalAmount+"  Rs only");
         if(discountPercentage>0){
@@ -441,17 +448,23 @@ public class Shopping {
 
 
 //  Remove Cart Objects for That User
-        fileHandler.fileDataVanisher(new File("./file_db/idtracker"));
-        for(int i=0;i<cart.getCartItemsCount();i++)
+        size = cart.getCartItemsCount();
+        Cart.Builder others_cart = Cart.newBuilder();
+        for(int i=0;i<size;i++)
         {
             if(!cart.getCartItems(i).getEmail().equals(email))
             {
-                fileHandler.addCart(cart.getCartItems(i).toBuilder(), "./file_db/idtracker");
+                others_cart.addCartItems(cart.getCartItems(i));
             }
         }
-
-
-
+        try {
+            FileOutputStream cartOutputStream = new FileOutputStream("./file_db/cart");
+            others_cart.build().writeTo(cartOutputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

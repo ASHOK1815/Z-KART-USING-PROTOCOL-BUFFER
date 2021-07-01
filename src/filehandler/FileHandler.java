@@ -25,6 +25,23 @@ public class FileHandler {
     }
 
 
+    public void addCart(proto.example.Schema.CartItem.Builder cart, String filePath) {
+
+        try{
+            FileInputStream inputFile = new FileInputStream(filePath);
+            Cart.Builder carts= Cart.newBuilder();
+            carts.mergeFrom(inputFile);
+            carts.addCartItems(cart);
+
+            FileOutputStream outputFile = new FileOutputStream(filePath);
+            carts.build().writeTo(outputFile);
+        } catch (IOException e)
+        {
+            System.out.println("Problem in adding data to cart  file !");
+        }
+    }
+
+
     public void addProduct(proto.example.Schema.Product.Builder Product, String filePath) {
 
         try{
@@ -51,24 +68,6 @@ public class FileHandler {
 
             FileOutputStream outputFile = new FileOutputStream(filePath);
             orders.build().writeTo(outputFile);
-        } catch (IOException e)
-        {
-            System.out.println("Problem in adding data from file !");
-        }
-    }
-
-
-
-    public void addCart(proto.example.Schema.CartItem.Builder cart, String filePath) {
-
-        try{
-            FileInputStream inputFile = new FileInputStream(filePath);
-            Cart.Builder carts= Cart.newBuilder();
-            carts.mergeFrom(inputFile);
-            carts.addCartItems(cart);
-
-            FileOutputStream outputFile = new FileOutputStream(filePath);
-            carts.build().writeTo(outputFile);
         } catch (IOException e)
         {
             System.out.println("Problem in adding data from file !");

@@ -15,6 +15,10 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner scan = new Scanner(System.in);
+//        DataHandler data=new DataHandler();
+//
+//        data.addIds();
+//        data.showIdTracker();
 
         char choice;
         String usersFilePath = "./file_db/customer";

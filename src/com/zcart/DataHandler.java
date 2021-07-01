@@ -1,15 +1,14 @@
 package com.zcart;
 
 import filehandler.FileHandler;
-import proto.example.Schema.Customers;
-import proto.example.Schema.Product;
-import proto.example.Schema.Products;
+import proto.example.Schema.*;
 
 import java.io.*;
 import java.util.Scanner;
 
 public class DataHandler {
 
+    Scanner scan = new Scanner(System.in);
     public void showCustomerData(){
         try {
             FileInputStream inputFile = new FileInputStream("./file_db/customer");
@@ -57,9 +56,30 @@ public class DataHandler {
     }
 
 
+    public void showCartData()
+    {
+
+        try {
+            FileInputStream inputFile = new FileInputStream("./file_db/cart");
+            Cart.Builder carts = Cart.newBuilder();
+            carts.mergeFrom(inputFile);
+
+            int size = carts.getCartItemsCount();
+            for(int i=0; i<size; i++){
+                System.out.println("Email "+carts.getCartItems(i).getEmail());
+                System.out.println("Product ID "+carts.getCartItems(i).getProductId());
+                System.out.println("Price "+carts.getCartItems(i).getPrice());
+                System.out.println();
+            }
+        } catch (IOException e) {
+            System.out.println("Problem in reading Cart data from file !");
+        }
+    }
+
+
     void addProduct()
     {
-        Scanner scan = new Scanner(System.in);
+
 
         String usersFilePath = "./file_db/product";
 
@@ -87,6 +107,51 @@ public class DataHandler {
             fileioworker.addProduct(products,usersFilePath);
 
 
+        }
+
+
+    }
+
+    void addIds()
+    {
+        String idFilePath = "./file_db/idtracker";
+
+        IdTracker.Builder id=IdTracker.newBuilder();
+        FileHandler fileioworker = new FileHandler();
+
+        for(int i=0;i<3;i++)
+        {
+            System.out.println("Enter the name ");
+            String name= scan.next();
+            System.out.println("Enter the id ");
+            int value= scan.nextInt();
+            id.setName(name);
+            id.setLastId(value);
+
+
+            fileioworker.addLastId(id,idFilePath);
+
+        }
+    }
+
+
+    void showIdTracker()
+    {
+        try {
+            FileInputStream inputFile = new FileInputStream("./file_db/idtracker");
+            IdTrackers.Builder ids=IdTrackers.newBuilder();
+
+            ids.mergeFrom(inputFile);
+
+            int size = ids.getIdTrackersCount();
+            for(int i=0; i<size; i++){
+                System.out.println("Name "+ids.getIdTrackers(i).getName());
+                System.out.println("Last_id "+ids.getIdTrackers(i).getLastId());
+
+                System.out.println();
+            }
+        } catch (IOException e) {
+            System.out.println("Problem in reading Cart data from file !");
         }
 
 

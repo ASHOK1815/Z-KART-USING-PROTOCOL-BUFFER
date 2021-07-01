@@ -22,31 +22,26 @@ public class Invoice {
         System.out.println("Invoice Number "+invoiceNumber);
         System.out.println();
 
-        Cart.Builder  product= fileHandler.readCartItems();
-        int size= product.getCartItemsCount();
 
-//        for(int i=0;i<size;i++)
-//        {
-//            if(product.getCartItems(i).getEmail().equalsIgnoreCase(email))
-//            {
-//
-//                System.out.println("Date:-"+product.getCartItems(i).getDate());
-//                int productIndex=0;
-//                for(int j=0;j<products.size();j++){
-//                    if(products.get(j).id==listProduct.get(i).productId){
-//                        productIndex=j;
-//                        break;
-//                    }
-//                }
-//                System.out.println("Brand:--"+products.get(productIndex).brand+"  "+"Model:--"+products.get(productIndex).model+" "+"Price:--"+listProduct.get(i).price);
-//            }
-//
-//            System.out.println();
-//        }
+        int size= cart.getCartItemsCount();
+        Products.Builder products = fileHandler.readFileDataProduct();
+        for(int i=0;i<size;i++)
+        {
+            if(cart.getCartItems(i).getEmail().equalsIgnoreCase(email))
+            {
+                System.out.println("Date:-"+cart.getCartItems(i).getDate());
+                int productIndex=0;
+                for(int j=0;j<products.getProductsCount();j++){
+                    if(products.getProducts(j).getId()==cart.getCartItems(i).getProductId()){
+                        productIndex=j;
+                        break;
+                    }
+                }
+                System.out.println("Brand:--"+products.getProducts(productIndex).getBrand()+"  "+"Model:--"+products.getProducts(productIndex).getModel()+" "+"Price:--"+cart.getCartItems(i).getPrice());
+            }
 
-
-
-
+            System.out.println();
+        }
     }
 
 
@@ -166,7 +161,7 @@ public class Invoice {
                         break;
                     }
                 }
-                System.out.println("Brand:--"+product.getProducts(productIndex).getBrand()+"  "+"Model:--"+product.getProducts(productIndex).getModel()+" "+"Price:--"+product.getProducts(productIndex).getPrice());
+                System.out.println("Brand:--"+product.getProducts(productIndex).getBrand()+"  "+"Model:--"+product.getProducts(productIndex).getModel()+" "+"Price:--"+cartProduct.getCartItems(i).getPrice());
             }
 
             System.out.println();
