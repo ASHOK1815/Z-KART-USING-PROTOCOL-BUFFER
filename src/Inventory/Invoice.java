@@ -7,7 +7,7 @@ public class Invoice {
 
 
     FileHandler fileHandler=new FileHandler();
-    public Invoice(String email, String time, String  date)  // Displaying  the Invoice
+    public Invoice(Cart.Builder cart,String email, String time, String  date)  // Displaying  the Invoice
     {
 
         System.out.println("------------------------------Z-KART-----------------------------------------");
@@ -42,7 +42,7 @@ public class Invoice {
 //            }
 //
 //            System.out.println();
-        //}
+//        }
 
 
 

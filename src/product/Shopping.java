@@ -10,10 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.InputMismatchException;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 
 public class Shopping {
@@ -40,6 +37,7 @@ public class Shopping {
 
 
             }
+            System.out.println();
 
 
         }
@@ -257,10 +255,200 @@ public class Shopping {
             return;
         }
 
+        String productsFile= "./file_db/product";
+        fileHandler.fileDataVanisher(new File(productsFile));
+
+        for(int j=0;j< productList.getProductsCount();j++)
+        {
+            fileHandler.addProduct(productList.getProducts(j).toBuilder(),productsFile);
+        }
+
+        Double totalAmount= Double.valueOf(0);
+        for(int i=0;i< cart.getCartItemsCount();i++)
+        {
+            if(cart.getCartItems(i).getEmail().equals(email))
+            {
+                OrderProduct.Builder order=OrderProduct.newBuilder();
+                order.setOrderId(newOrderId);
+                order.setProductId(cart.getCartItems(i).getProductId());
+                order.setPrice(cart.getCartItems(i).getPrice());
+                totalAmount += cart.getCartItems(i).getPrice();
+                fileHandler.addOrderProduct(order,productsFile);
+            }
+        }
 
 
+        Customers.Builder allCustomer=fileHandler.readFileDataCustomer();
+        Coupons.Builder allCoupens=fileHandler.readCoupen();
+        Orders.Builder allOrders=fileHandler.readHistoryProductUser();
+
+        Customer userObj=null;
+        int discountPercentage=0;
+        double amountSaved=0;
+
+        Coupons.Builder userCoupens=Coupons.newBuilder();
+
+        for(int i=0;i<allCoupens.getCouponsCount();i++){
+            if(allCoupens.getCoupons(i).getEmail().equals(email)){
+                userCoupens.addCoupons(allCoupens.getCoupons(i));
+            }
+        }
+        for(int i=0;i<allCustomer.getCustomersCount();i++){
+            if(allCustomer.getCustomers(i).getEmail().equals(email)){
+                userObj=allCustomer.getCustomers(i);
+                break;
+            }
+        }
+
+        int isCouponGenerated=0;
+        int newCouponId=0;
+        for(int i=0;i<idTracker.getIdTrackersCount();i++){
+            if(idTracker.getIdTrackers(i).getName().equals("coupon")){
+                newCouponId=idTracker.getIdTrackers(i).getLastId()+1;
+            }
+        }
+
+        int totalUserOrders=0;
+        for(int i=0;i<allOrders.getOrdersCount();i++){
+            if( allOrders.getOrders(i).getEmail().equals(email) ){
+                totalUserOrders += 1;
+            }
+        }
+
+        String couponsFile= "./file_db/coupen";
+        if(totalUserOrders>=2 && userObj.getIsInitialCouponGenerated()==0){
+            int couponCode = (int)Math.floor(Math.random()*(999999-100000+1)+100000);
+            Coupon.Builder newUserCoupen=Coupon.newBuilder();
+            newUserCoupen.setId(newCouponId);
+            newUserCoupen.setEmail(email);
+            newUserCoupen.setCouponCode(couponCode);
+            newUserCoupen.setDate(LocalDate.now().toString());
+            newUserCoupen.setTime(LocalTime.now().toString());
+
+            fileHandler.addCoupon(newUserCoupen,couponsFile);
+            isCouponGenerated=1;
+            fileHandler.fileDataVanisher(new File("./file_db/customer"));
+            for(int i=0;i<allCustomer.getCustomersCount();i++){
+                if(allCustomer.getCustomers(i).getEmail().equals(email)){
+
+                    Customer.Builder dummyCustomer=Customer.newBuilder();
+                    dummyCustomer.setName(allCustomer.getCustomers(i).getName());
+                    dummyCustomer.setPassword(allCustomer.getCustomers(i).getPassword());
+                    dummyCustomer.setEmail(allCustomer.getCustomers(i).getEmail());
+                    dummyCustomer.setMobileNumber(allCustomer.getCustomers(i).getMobileNumber());
+                    dummyCustomer.setIsInitialCouponGenerated(1);
+                    allCustomer.setCustomers(i,dummyCustomer);
+
+                }
+
+                fileHandler.addUser(allCustomer.getCustomers(i).toBuilder(), "./file_db/customer");
+            }
+        }else if(totalAmount>=20000){
+            int couponCode = (int)Math.floor(Math.random()*(999999-100000+1)+100000);
+            Coupon.Builder newUserCoupen=Coupon.newBuilder();
+            newUserCoupen.setId(newCouponId);
+            newUserCoupen.setEmail(email);
+            newUserCoupen.setGetOnOrderId(newCouponId);
+            newUserCoupen.setCouponCode(couponCode);
+            newUserCoupen.setDate(LocalDate.now().toString());
+            newUserCoupen.setTime(LocalTime.now().toString());
+
+            fileHandler.addCoupon(newUserCoupen, "./file_db/coupen");
+            isCouponGenerated=1;
+        }
+
+        if(isCouponGenerated==1){
+            for(int i=0;i<idTracker.getIdTrackersCount();i++){
+                if(idTracker.getIdTrackers(i).getName().equals("coupon")){
+                    IdTracker.Builder changeId=IdTracker.newBuilder();
+                    changeId.setName(idTracker.getIdTrackers(i).getName());
+                    changeId.setLastId(newCouponId);
+                    idTracker.setIdTrackers(i,changeId);
+                }
+            }
+        }
+
+        if(userCoupens.getCouponsCount()!=0){
+            Set<Integer> deleteCoupons= new HashSet<Integer>();
+            for(int j=0;j<userCoupens.getCouponsCount();j++){
+                int noOrdersAfterCouponGeneration= 0;
+                for(int i=0;i<allOrders.getOrdersCount();i++){
+                    if(allOrders.getOrders(i).getEmail().equals(email) && allOrders.getOrders(i).getId()>userCoupens.getCoupons(j).getGetOnOrderId()){
+                        noOrdersAfterCouponGeneration += 1;
+                    }
+                }
+                if(noOrdersAfterCouponGeneration<3){
+                    System.out.println("DO YOU WANT TO USE COUPON? PRESS 1 TO USE, ANY KEY TO SKIP");
+                    int isCouponApplied=0;
+                    Scanner scan = new Scanner(System.in);
+
+                    try {
+                        isCouponApplied = scan.nextInt();
+
+                    } catch (InputMismatchException e) {
+                        System.out.print("Caution:-- Please enter number between 1-2\n");
+                        scan.next();
+                        break;
+                    }
 
 
+                    if(isCouponApplied==1){
+                        Random r = new Random();
+                        discountPercentage = r.nextInt(30-20) + 20;
+                        discountOffer=discountPercentage;
+                        amountSaved = (totalAmount*discountPercentage)/100;
+                        totalAmount -= (totalAmount*discountPercentage)/100;
+                    }
+                    break;
+                }else{
+                    deleteCoupons.add(userCoupens.getCoupons(j).getId());
+                }
+            }
+
+            Coupons.Builder allCoupons=Coupons.newBuilder();
+            allCoupons= fileHandler.readCoupen();
+            fileHandler.fileDataVanisher(new File("/file_db/coupen"));
+            for(int i=0;i<allCoupons.getCouponsCount();i++){
+                if(!(allCoupons.getCoupons(i).getEmail().equals(email) && deleteCoupons.contains(allCoupons.getCoupons(i).getId()) ) ){
+                    fileHandler.addCoupon(allCoupons.getCoupons(i).toBuilder(),"/file_db/coupen");
+                }
+            }
+        }
+
+
+        Order.Builder order=Order.newBuilder();
+        order.setId(newOrderId);
+        order.setEmail(email);
+        order.setDiscount(discountPercentage);
+        order.setTotalAmount(totalAmount);
+        order.setDate(LocalDate.now().toString());
+        order.setTime(LocalTime.now().toString());
+
+        fileHandler.addOrder(order, "./file_db/order");
+        fileHandler.fileDataVanisher(new File("./file_db/idtracker"));
+        for(int i=0;i<idTracker.getIdTrackersCount();i++){
+            fileHandler.addLastId(idTracker.getIdTrackers(i).toBuilder(), "./file_db/idtracker");
+        }
+
+        Invoice invoice=new Invoice(cart,email,timeObj.toString(),dateObj.toString());
+
+        System.out.println("TOTAL PAY AMOUNT:--"+totalAmount+"  Rs only");
+        if(discountPercentage>0){
+            System.out.println(String.format("------------ --You get  %s percentage discount using Coupen-------------------------", String.valueOf(discountOffer)));
+            System.out.println(String.format("----------------------You have Saved %s------------------------------------", String.valueOf(amountSaved)));
+        }
+        System.out.println("----------------------Thanks for shopping------------------------------------");
+
+
+//  Remove Cart Objects for That User
+        fileHandler.fileDataVanisher(new File("./file_db/idtracker"));
+        for(int i=0;i<cart.getCartItemsCount();i++)
+        {
+            if(!cart.getCartItems(i).getEmail().equals(email))
+            {
+                fileHandler.addCart(cart.getCartItems(i).toBuilder(), "./file_db/idtracker");
+            }
+        }
 
 
 
@@ -364,22 +552,27 @@ public class Shopping {
                   break;
 
                 case '5':
-//                    ArrayList<Cart> productsInCart =filehandler.readCurrentProductUser();
-//                    File cartFile= new File("./File_db/z-current-product_db.txt");
-//                    filehandler.fileDataVanisher(cartFile);
-//                    int flag=0;
-//                    for(int i=0;i<productsInCart.size();i++){
-//                        if(!productsInCart.get(i).email.equals(email)){
-//                            filehandler.addCart(productsInCart.get(i), cartFile);
-//                        }else{
-//                            flag=1;
-//                        }
-//                    }
-//                    if(flag==1){
-//                        System.out.println("------YOUR CART HAS BEEN EMPTIED SUCCESSFULLY--------\n");
-//                    }else{
-//                        System.out.println("------YOUR CART IS ALREADY EMPTY--------\n");
-//                    }
+
+                    Cart.Builder  cartProduct= fileHandler.readCartItems();
+                    int size= cartProduct.getCartItemsCount();
+
+                    String usersFilePath = "./file_db/cart";
+                    FileHandler fileHandler=new FileHandler();
+                    fileHandler.fileDataVanisher(new File(usersFilePath));
+                    int flag=0;
+                    int sizeCart=cartProduct.getCartItemsCount();
+                    for(int i=0;i<sizeCart;i++){
+                        if(!cartProduct.getCartItems(i).getEmail().equals(email)){
+                           fileHandler.addCart(cartProduct.getCartItems(i).toBuilder(),usersFilePath);
+                        }else{
+                            flag=1;
+                        }
+                    }
+                    if(flag==1){
+                        System.out.println("------YOUR CART HAS BEEN EMPTIED SUCCESSFULLY--------\n");
+                    }else{
+                        System.out.println("------YOUR CART IS ALREADY EMPTY--------\n");
+                    }
 
                 default:
                     break;

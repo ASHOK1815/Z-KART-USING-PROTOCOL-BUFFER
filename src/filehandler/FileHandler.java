@@ -41,6 +41,22 @@ public class FileHandler {
         }
     }
 
+    public void addOrderProduct(proto.example.Schema.OrderProduct.Builder order, String filePath) {
+
+        try{
+            FileInputStream inputFile = new FileInputStream(filePath);
+            OrderProducts.Builder orders=OrderProducts.newBuilder();
+            orders.mergeFrom(inputFile);
+            orders.addOrderProducts(order);
+
+            FileOutputStream outputFile = new FileOutputStream(filePath);
+            orders.build().writeTo(outputFile);
+        } catch (IOException e)
+        {
+            System.out.println("Problem in adding data from file !");
+        }
+    }
+
 
 
     public void addCart(proto.example.Schema.CartItem.Builder cart, String filePath) {
@@ -53,6 +69,58 @@ public class FileHandler {
 
             FileOutputStream outputFile = new FileOutputStream(filePath);
             carts.build().writeTo(outputFile);
+        } catch (IOException e)
+        {
+            System.out.println("Problem in adding data from file !");
+        }
+    }
+
+
+
+    public void addCoupon(proto.example.Schema.Coupon.Builder coupen, String filePath) {
+
+        try{
+            FileInputStream inputFile = new FileInputStream(filePath);
+            Coupons.Builder coupons= Coupons.newBuilder();
+            coupons.mergeFrom(inputFile);
+            coupons.addCoupons(coupen);
+
+            FileOutputStream outputFile = new FileOutputStream(filePath);
+            coupen.build().writeTo(outputFile);
+        } catch (IOException e)
+        {
+            System.out.println("Problem in adding data from file !");
+        }
+    }
+
+
+    public void addOrder(proto.example.Schema.Order.Builder order, String filePath) {
+
+        try{
+            FileInputStream inputFile = new FileInputStream(filePath);
+            Orders.Builder orders=Orders.newBuilder();
+            orders.mergeFrom(inputFile);
+            orders.addOrders(order);
+
+            FileOutputStream outputFile = new FileOutputStream(filePath);
+            orders.build().writeTo(outputFile);
+        } catch (IOException e)
+        {
+            System.out.println("Problem in adding data from file !");
+        }
+    }
+
+
+    public void addLastId(proto.example.Schema.IdTracker.Builder idtracker, String filePath) {
+
+        try{
+            FileInputStream inputFile = new FileInputStream(filePath);
+            IdTrackers.Builder idtrackers=IdTrackers.newBuilder();
+            idtrackers.mergeFrom(inputFile);
+            idtrackers.addIdTrackers(idtracker);
+
+            FileOutputStream outputFile = new FileOutputStream(filePath);
+            idtrackers.build().writeTo(outputFile);
         } catch (IOException e)
         {
             System.out.println("Problem in adding data from file !");
@@ -130,6 +198,25 @@ public class FileHandler {
 
 
         return customers;
+    }
+
+
+    public Coupons.Builder readCoupen()
+    {
+        String usersFilePath = "./file_db/coupen";
+        Coupons.Builder coupens=Coupons.newBuilder();
+        try{
+            FileInputStream inputFile = new FileInputStream(usersFilePath);
+
+            coupens.mergeFrom(inputFile);
+            return  coupens;
+
+        } catch (IOException e)
+        {
+            System.out.println("Problem in reading data from file !");
+        }
+        return coupens;
+
     }
 
 
