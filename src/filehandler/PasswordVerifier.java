@@ -7,6 +7,15 @@ import proto.example.Schema.Customers;
 import java.io.*;
 import java.util.*;
 
+/*
+   PasswordVerifier class deals with all the password releated task
+   1.Encryption of code
+   2.Password valid checker to check whether password follows the given condition-like password must
+     have 2 number ,2 uppercase letter and 2 lower case letter
+   3.Password changer method is used to update latest password to the customer file
+   4.PasswordUpdate method deals with the all the password changes related inputs
+
+ */
 
 public class PasswordVerifier {
 

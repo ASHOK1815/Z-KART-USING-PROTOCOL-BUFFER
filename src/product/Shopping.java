@@ -12,6 +12,16 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
+/*
+
+ Shopping class deals with the all the process related to shopping,
+ 1.Buying product
+ 2.Adding cart to product.
+ 3.Check out the product present in the cart.
+ 4.Empty the cart if the wrong product added to the cart.
+
+ */
+
 
 public class Shopping {
 
@@ -191,9 +201,9 @@ public class Shopping {
 
         for(int i=0;i<size;i++)
         {
-            for(int j=0;j< cart.getCartItemsCount();j++)
+            for(int j=0;j<cart.getCartItemsCount();j++)
             {
-                if( cart.getCartItems(j).getEmail().equals(email) && productList.getProducts(i).getId()==cart.getCartItems(j).getProductId())
+                if( (cart.getCartItems(j).getEmail().equals(email)) && (productList.getProducts(i).getId()==cart.getCartItems(j).getProductId()))
                 {
                     if(productList.getProducts(i).getStock()>=1){
 
@@ -202,16 +212,7 @@ public class Shopping {
                         product.setStock(productList.getProducts(i).getStock()-1);
                         productList.setProducts(i,product);
 
-//                        String productFile = "./file_db/product";
 
-//                        try {
-//                            FileOutputStream outputFile= new FileOutputStream(productFile);
-//                            productList.build().writeTo(outputFile);
-//                        } catch (FileNotFoundException e) {
-//                            e.printStackTrace();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
 
                     }else{
                         cartIteamsOutOfStock.add(j);
@@ -221,6 +222,9 @@ public class Shopping {
                 }
             }
         }
+
+
+
 
 
         if(is_stock_avialable==0){
@@ -248,10 +252,11 @@ public class Shopping {
         }
 
         String productsFile= "./file_db/product";
-        FileOutputStream productOutputStream = null;
+
         try {
-            productOutputStream = new FileOutputStream(productsFile);
+            FileOutputStream productOutputStream = new FileOutputStream(productsFile);
             productList.build().writeTo(productOutputStream);
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -550,8 +555,21 @@ public class Shopping {
 
 
                 case '2':
+                    Orders.Builder listHistoryCart=fileHandler.readHistoryProductUser();
+                    int size= listHistoryCart.getOrdersCount();
 
-                    Invoice invoiceObject=new Invoice(email,timeObj.toString(),dateObj.toString(),"0");
+                    Orders.Builder  showCart=Orders.newBuilder();
+
+                    for(int i=0;i<size;i++)
+                    {
+                        if(listHistoryCart.getOrders(i).getEmail().equalsIgnoreCase(email))
+                        {
+                            showCart.addOrders(listHistoryCart.getOrders(i));
+                        }
+                    }
+
+
+                    Invoice invoiceObject=new Invoice(showCart,email,timeObj.toString(),dateObj.toString(),"0");
                     break;
 
                 case '3':
@@ -567,7 +585,7 @@ public class Shopping {
                 case '5':
 
                     Cart.Builder  cartProduct= fileHandler.readCartItems();
-                    int size= cartProduct.getCartItemsCount();
+                    size= cartProduct.getCartItemsCount();
 
                     String usersFilePath = "./file_db/cart";
                     FileHandler fileHandler=new FileHandler();

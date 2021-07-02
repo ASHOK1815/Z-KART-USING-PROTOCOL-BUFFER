@@ -3,6 +3,11 @@ package Inventory;
 import proto.example.Schema.*;
 import filehandler.FileHandler;
 
+/*
+
+INVOICE CLASS CONSIST OF THE SHOWING HISTORY ,SHOWING CART AND SHOWING INVOICE DETAILS
+
+ */
 public class Invoice {
 
 
@@ -46,11 +51,11 @@ public class Invoice {
 
 
 
-    public Invoice(String email, String time, String date, String s) {
+    public Invoice(Orders.Builder  showCart,String email, String time, String date, String s) {
 
 
-        Orders.Builder listHistoryCart=fileHandler.readHistoryProductUser();
-        int size= listHistoryCart.getOrdersCount();
+
+        int size= showCart.getOrdersCount();
         
         if(size==0)
         {
@@ -68,11 +73,11 @@ public class Invoice {
           
             for(int i=0;i<size;i++)
             {
-                if(listHistoryCart.getOrders(i).getEmail().equalsIgnoreCase(email))
+                if(showCart.getOrders(i).getEmail().equalsIgnoreCase(email))
                 {
                     Double totalPrice = Double.valueOf(0);
-                    System.out.println("------------------------------OrderId-"+listHistoryCart.getOrders(i).getId()+"-----------------------------------------");
-                    System.out.println("Date:-"+listHistoryCart.getOrders(i).getDate());
+                    System.out.println("------------------------------OrderId-"+showCart.getOrders(i).getId()+"-----------------------------------------");
+                    System.out.println("Date:-"+showCart.getOrders(i).getDate());
                     System.out.println("\nProducts:");
 
                     OrderProducts.Builder orderProducts = fileHandler.readOrderProducts();
@@ -83,9 +88,9 @@ public class Invoice {
 
                     for(int j=0;j<orderProducts.getOrderProductsCount();j++){
 
-                        if(orderProducts.getOrderProducts(j).getOrderId()==listHistoryCart.getOrders(i).getId()){
+                        if(orderProducts.getOrderProducts(j).getOrderId()==showCart.getOrders(i).getId()){
                             totalPrice+=orderProducts.getOrderProducts(j).getPrice();
-                            totalPrice=totalPrice-(totalPrice*listHistoryCart.getOrders(i).getDiscount()/100.0);
+                            totalPrice=totalPrice-(totalPrice*showCart.getOrders(i).getDiscount()/100.0);
 
                             int productIndex=0;
                             for(int k=0;k<products.getProductsCount();k++){
@@ -96,13 +101,13 @@ public class Invoice {
                             }
                             System.out.println("-> Brand:--"+products.getProducts(productIndex).getBrand()+"  "+"Model:--"+products.getProducts(productIndex).getModel()+" "+"Price:--"+products.getProducts(productIndex).getPrice());
 
-                            if(listHistoryCart.getOrders(i).getDiscount()==0)
+                            if(showCart.getOrders(i).getDiscount()==0)
                             {
                                 System.out.println("NO COUPEN APPLIED..");
                             }
                             else
                             {
-                                System.out.println("\nTOTAL DISCOUNT PERCENTAGE OFFERED BY APPLYING COUPEN:--"+listHistoryCart.getOrders(i).getDiscount()+"%");
+                                System.out.println("\nTOTAL DISCOUNT PERCENTAGE OFFERED BY APPLYING COUPEN:--"+showCart.getOrders(i).getDiscount()+"%");
                             }
 
                         }

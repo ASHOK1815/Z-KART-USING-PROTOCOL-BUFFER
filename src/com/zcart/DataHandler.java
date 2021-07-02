@@ -6,6 +6,12 @@ import proto.example.Schema.*;
 import java.io.*;
 import java.util.Scanner;
 
+/*
+
+ Data handler class help to add data to file and also having method to display the all details of file
+
+ */
+
 public class DataHandler {
 
     Scanner scan = new Scanner(System.in);
@@ -153,6 +159,35 @@ public class DataHandler {
         } catch (IOException e) {
             System.out.println("Problem in reading Cart data from file !");
         }
+
+
+    }
+
+
+    void showHistoryDataFile()
+    {
+
+        try {
+            FileInputStream inputFile = new FileInputStream("./file_db/order");
+
+            Orders.Builder order=Orders.newBuilder();
+            order.mergeFrom(inputFile);
+
+            int size = order.getOrdersCount();
+            for(int i=0; i<size; i++){
+                System.out.println("Id "+order.getOrders(i).getId());
+                System.out.println("Email "+order.getOrders(i).getEmail());
+                System.out.println("Discount "+order.getOrders(i).getDiscount());
+                System.out.println("TotalAmount "+order.getOrders(i).getTotalAmount());
+
+                System.out.println();
+            }
+        } catch (IOException e) {
+            System.out.println("Problem in reading Cart data from file !");
+        }
+
+
+
 
 
     }

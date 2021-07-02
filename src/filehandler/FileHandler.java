@@ -5,6 +5,15 @@ import proto.example.Schema.*;
 import java.io.*;
 import java.util.ArrayList;
 
+/*
+    FileHandler deals with all the file reading and writing section,
+    1.addUser method used to add customer to file.
+    2.addCart method used to add contains in cart file.
+    3.addProduct method used to add products to the  file.
+
+
+ */
+
 public class FileHandler {
 
 

@@ -15,8 +15,9 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner scan = new Scanner(System.in);
-//        DataHandler data=new DataHandler();
-//
+        DataHandler data=new DataHandler();
+        data.showHistoryDataFile();
+
 //        data.addIds();
 //        data.showIdTracker();
 
